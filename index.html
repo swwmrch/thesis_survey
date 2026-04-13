@@ -526,58 +526,31 @@ function submitForm() {
   const btn = document.getElementById("nextBtn");
   if (btn) { btn.disabled = true; btn.textContent = "กำลังส่ง..."; }
 
-  // Build a hidden HTML form and submit it directly
-  // This is more reliable than fetch for Google Forms
-  const form = document.createElement("form");
-  form.method = "POST";
-  form.action = FORM_ACTION;
-  form.target = "hidden_iframe";
-  form.style.display = "none";
+  // Build URL-encoded form data
+  const params = new URLSearchParams();
 
   QUESTIONS.forEach(q => {
     if (answers[q.id]) {
-      const input = document.createElement("input");
-      input.type = "hidden";
-      input.name = q.entry;
-      input.value = answers[q.id];
-      form.appendChild(input);
+      params.append(q.entry, answers[q.id]);
     }
   });
 
-  // Add required hidden fields Google Forms needs
-  const fvv = document.createElement("input");
-  fvv.type = "hidden"; fvv.name = "fvv"; fvv.value = "1";
-  form.appendChild(fvv);
+  // Required hidden fields
+  params.append("fvv", "1");
+  params.append("draftResponse", "[]");
+  params.append("pageHistory", "0,1");
+  params.append("fbzx", "-6129021064034785429");
 
-  const draftResponse = document.createElement("input");
-  draftResponse.type = "hidden"; draftResponse.name = "draftResponse"; draftResponse.value = "[]";
-  form.appendChild(draftResponse);
-
-  const pageHistory = document.createElement("input");
-  pageHistory.type = "hidden"; pageHistory.name = "pageHistory"; pageHistory.value = "0,1";
-  form.appendChild(pageHistory);
-
-  document.body.appendChild(form);
-
-  // Create hidden iframe to catch the response (prevents page redirect)
-  let iframe = document.getElementById("hidden_iframe");
-  if (!iframe) {
-    iframe = document.createElement("iframe");
-    iframe.name = "hidden_iframe";
-    iframe.id = "hidden_iframe";
-    iframe.style.display = "none";
-    document.body.appendChild(iframe);
-  }
-
-  iframe.onload = function() {
-    document.body.removeChild(form);
-    renderThankYou();
-  };
-
-  form.submit();
-
-  // Fallback: if iframe doesn't fire onload within 4 seconds, show thank you anyway
-  setTimeout(() => renderThankYou(), 4000);
+  // Submit via fetch no-cors — works from any hosted domain
+  // Google Forms accepts this even without a CORS response
+  fetch(FORM_ACTION, {
+    method: "POST",
+    mode: "no-cors",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: params.toString()
+  })
+  .then(() => renderThankYou())
+  .catch(() => renderThankYou());
 }
 
 function restartSurvey() {
