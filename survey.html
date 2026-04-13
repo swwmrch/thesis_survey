@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>แบบประเมินความพึงพอใจ</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Sarabun','Noto Sans Thai',sans-serif;
+  background: #f0f4f8;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 16px 60px;
+}
+
+/* Progress bar */
+.progress-wrap {
+  width: 100%;
+  max-width: 680px;
+  margin-bottom: 20px;
+}
+.progress-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.progress-step {
+  font-size: 15px;
+  font-weight: 600;
+  color: #4a5568;
+}
+.progress-pct {
+  font-size: 15px;
+  color: #a0aec0;
+}
+.progress-track {
+  height: 10px;
+  background: #e2e8f0;
+  border-radius: 99px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3182ce, #63b3ed);
+  border-radius: 99px;
+  transition: width 0.5s cubic-bezier(.4,0,.2,1);
+}
+
+/* Card */
+.card {
+  width: 100%;
+  max-width: 680px;
+  background: white;
+  border-radius: 24px;
+  padding: 36px 32px;
+  border: 1px solid #e2e8f0;
+  animation: fadeSlide 0.35s ease;
+}
+@keyframes fadeSlide {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Section badge */
+.section-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  border-radius: 99px;
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+/* Question text */
+.q-number {
+  font-size: 16px;
+  color: #a0aec0;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.q-text {
+  font-size: 30px;
+  font-weight: 700;
+  color: #1a202c;
+  line-height: 1.5;
+  margin-bottom: 32px;
+}
+
+/* Big radio options (page 1) */
+.radio-group { display: flex; flex-direction: column; gap: 14px; }
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 20px 22px;
+  border: 2.5px solid #e2e8f0;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.15s;
+  background: #f8fafc;
+  user-select: none;
+}
+.radio-option:hover { border-color: #4299e1; background: #ebf8ff; }
+.radio-option.selected { border-color: #3182ce; background: #ebf8ff; }
+.radio-option input { display: none; }
+.radio-circle {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  border: 3px solid #cbd5e0;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: all 0.15s;
+}
+.radio-option.selected .radio-circle { border-color: #3182ce; background: #3182ce; }
+.radio-dot { width: 11px; height: 11px; border-radius: 50%; background: white; display: none; }
+.radio-option.selected .radio-dot { display: block; }
+.radio-text { font-size: 22px; color: #2d3748; font-weight: 600; }
+
+/* Emoji rating */
+.emoji-grid {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  justify-content: space-between;
+}
+.emoji-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 22px 6px;
+  border: 3px solid #e2e8f0;
+  border-radius: 20px;
+  background: #f8fafc;
+  cursor: pointer;
+  transition: all 0.15s;
+  flex: 1;
+  text-align: center;
+  font-family: inherit;
+}
+.emoji-btn:hover { border-color: #4299e1; background: #ebf8ff; transform: translateY(-6px); }
+.emoji-btn.selected { border-color: #3182ce; background: #ebf8ff; transform: translateY(-6px); }
+.emoji-btn svg { width: 80px; height: 80px; flex-shrink: 0; }
+.emoji-btn-text { display: flex; flex-direction: column; gap: 4px; }
+.emoji-btn-main { font-size: 18px; font-weight: 700; color: #2d3748; }
+.emoji-btn-sub  { font-size: 14px; color: #718096; }
+.emoji-btn.selected .emoji-btn-main { color: #2b6cb0; }
+
+/* Text area */
+textarea {
+  width: 100%;
+  padding: 18px;
+  font-size: 20px;
+  font-family: inherit;
+  border: 2.5px solid #e2e8f0;
+  border-radius: 16px;
+  resize: vertical;
+  min-height: 130px;
+  color: #2d3748;
+  background: #f8fafc;
+  transition: border-color 0.15s;
+  line-height: 1.6;
+}
+textarea:focus { outline: none; border-color: #3182ce; background: white; }
+
+/* Navigation */
+.nav-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 32px;
+}
+.btn {
+  flex: 1;
+  padding: 20px;
+  font-size: 20px;
+  font-weight: 700;
+  border-radius: 16px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+.btn-back { background: #edf2f7; color: #4a5568; flex: 0 0 auto; padding: 20px 28px; }
+.btn-back:hover { background: #e2e8f0; }
+.btn-next { background: #3182ce; color: white; }
+.btn-next:hover { background: #2b6cb0; }
+.btn-next:active { transform: scale(0.98); }
+.btn-submit { background: #38a169; color: white; }
+.btn-submit:hover { background: #2f855a; }
+.btn:disabled { background: #a0aec0 !important; cursor: not-allowed; transform: none !important; }
+
+/* Error */
+.error-msg {
+  font-size: 16px; color: #e53e3e;
+  margin-top: 14px; display: none;
+  font-weight: 600;
+}
+.error-msg.show { display: block; }
+
+/* Welcome screen */
+.welcome-icon { font-size: 64px; text-align: center; margin-bottom: 16px; }
+.welcome-title { font-size: 28px; font-weight: 700; color: #1a202c; text-align: center; line-height: 1.4; margin-bottom: 8px; }
+.welcome-sub { font-size: 17px; color: #718096; text-align: center; line-height: 1.7; margin-bottom: 8px; }
+.steps-row {
+  display: flex;
+  gap: 10px;
+  margin: 24px 0;
+  flex-wrap: wrap;
+}
+.step-chip {
+  flex: 1;
+  min-width: 120px;
+  padding: 14px 10px;
+  border-radius: 14px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Thank you */
+.thank-icon { font-size: 80px; text-align: center; margin-bottom: 20px; }
+.thank-title { font-size: 32px; font-weight: 700; color: #2d3748; text-align: center; margin-bottom: 10px; }
+.thank-sub { font-size: 19px; color: #718096; text-align: center; line-height: 1.7; margin-bottom: 32px; }
+.btn-again {
+  width: 100%; padding: 20px; font-size: 20px; font-weight: 700;
+  border-radius: 16px; background: #3182ce; color: white;
+  border: none; cursor: pointer; font-family: inherit;
+}
+.btn-again:hover { background: #2b6cb0; }
+</style>
+</head>
+<body>
+
+<!-- Progress (hidden on welcome/thank you) -->
+<div class="progress-wrap" id="progressWrap" style="display:none">
+  <div class="progress-top">
+    <span class="progress-step" id="progressStep">ข้อที่ 1 จาก 18</span>
+    <span class="progress-pct" id="progressPct">0%</span>
+  </div>
+  <div class="progress-track">
+    <div class="progress-fill" id="progressFill" style="width:0%"></div>
+  </div>
+</div>
+
+<div class="card" id="mainCard"></div>
+
+<script>
+// ── Google Form config ────────────────────────────────────────────
+const FORM_ACTION = "https://docs.google.com/forms/d/e/1FAIpQLSfm-Au8Al_I-7QQyHF-RmzeYy6OLnN9NfBiyMiRBb9oY5Znig/formResponse";
+
+// ── All questions in order ────────────────────────────────────────
+const QUESTIONS = [
+  // Page 1 — Personal info
+  {
+    id: "gender", entry: "entry.885102878", type: "radio",
+    section: null,
+    text: "เพศของท่านคือ?",
+    options: [
+      { value:"เพศชาย",  label:"👨  เพศชาย" },
+      { value:"เพศหญิง", label:"👩  เพศหญิง" },
+      { value:"ไม่ระบุ", label:"⚪  ไม่ระบุ" },
+    ]
+  },
+  {
+    id: "age", entry: "entry.1327336403", type: "radio",
+    section: null,
+    text: "อายุของท่านอยู่ในช่วงใด?",
+    options: [
+      { value:"18 - 29", label:"18 - 29 ปี" },
+      { value:"30 - 39", label:"30 - 39 ปี" },
+      { value:"40 - 49", label:"40 - 49 ปี" },
+      { value:"50 - 59", label:"50 - 59 ปี" },
+      { value:"60 - 69", label:"60 - 69 ปี" },
+    ]
+  },
+  {
+    id: "injury", entry: "entry.1366530576", type: "radio",
+    section: null,
+    text: "ท่านเคยมีประวัติการบาดเจ็บที่ขาหรือข้อเท้าหรือไม่?",
+    options: [
+      { value:"เคย",   label:"✅  เคย" },
+      { value:"ไม่เคย",label:"❌  ไม่เคย" },
+    ]
+  },
+
+  // Section A — Hardware
+  { id:"hw1", entry:"entry.810457591",  type:"rating", section:"🔵 ด้านอุปกรณ์และการทรงตัว (Hardware)", text:"ความมั่นคงของอุปกรณ์อยู่ในระดับใด" },
+  { id:"hw2", entry:"entry.1699620224", type:"rating", section:"🔵 ด้านอุปกรณ์และการทรงตัว (Hardware)", text:"ความทนทานของอุปกรณ์อยู่ในระดับใด" },
+  { id:"hw3", entry:"entry.2128734516", type:"rating", section:"🔵 ด้านอุปกรณ์และการทรงตัว (Hardware)", text:"พื้นที่ในการวางเท้าอยู่ในระดับใด" },
+  { id:"hw4", entry:"entry.1307271657", type:"rating", section:"🔵 ด้านอุปกรณ์และการทรงตัว (Hardware)", text:"ดีไซต์ของอุปกรณ์อยู่ในระดับใด" },
+  { id:"hw5", entry:"entry.957817638",  type:"rating", section:"🔵 ด้านอุปกรณ์และการทรงตัว (Hardware)", text:"ความสะดวกสบายในการใช้งานอยู่ในระดับใด" },
+
+  // Section B — Software
+  { id:"sw1", entry:"entry.2134556750", type:"rating", section:"🟢 ด้านตัวเกมและการใช้งาน (Software)", text:"ขั้นตอนการเล่นเข้าใจง่ายอยู่ในระดับใด" },
+  { id:"sw2", entry:"entry.2003811779", type:"rating", section:"🟢 ด้านตัวเกมและการใช้งาน (Software)", text:"ตัวหนังสือและสีมองเห็นได้ง่ายอยู่ในระดับใด" },
+  { id:"sw3", entry:"entry.1240303633", type:"rating", section:"🟢 ด้านตัวเกมและการใช้งาน (Software)", text:"ความสวยงามของภาพอยู่ในระดับใด" },
+  { id:"sw4", entry:"entry.783904440",  type:"rating", section:"🟢 ด้านตัวเกมและการใช้งาน (Software)", text:"ความรวดเร็วในการเล่นอยู่ในระดับใด" },
+  { id:"sw5", entry:"entry.1229005225", type:"rating", section:"🟢 ด้านตัวเกมและการใช้งาน (Software)", text:"เกมมีความลื่นไหลไม่ติดขัดอยู่ในระดับใด" },
+
+  // Section C — Value
+  { id:"v1", entry:"entry.1778656243", type:"rating", section:"🟡 ด้านประโยชน์ที่ได้รับ (Value)", text:"ความเข้าใจในระดับการทรงตัวของตนเองอยู่ในระดับใด" },
+  { id:"v2", entry:"entry.1441450741", type:"rating", section:"🟡 ด้านประโยชน์ที่ได้รับ (Value)", text:"ความสนุกของเกมอยู่ในระดับใด" },
+  { id:"v3", entry:"entry.982834714",  type:"rating", section:"🟡 ด้านประโยชน์ที่ได้รับ (Value)", text:"ความปลอดภัยขณะเล่นอยู่ในระดับใด" },
+  { id:"v4", entry:"entry.1359266175", type:"rating", section:"🟡 ด้านประโยชน์ที่ได้รับ (Value)", text:"อยากแนะนำให้ผู้อื่นอยู่ในระดับใด" },
+  { id:"v5", entry:"entry.1999539936", type:"rating", section:"🟡 ด้านประโยชน์ที่ได้รับ (Value)", text:"ความพึงพอใจโดยรวมอยู่ในระดับใด" },
+
+  // Suggestions
+  { id:"suggest", entry:"entry.662608131", type:"text", section:null, text:"ท่านมีข้อเสนอแนะเพิ่มเติมหรือไม่? (ไม่บังคับ)", required: false },
+];
+
+const LEVELS = [
+  { value:"ดีมาก",       color:"#1D9E75", bg:"#E6FFFA", mouth:"happy2", sub:"มากที่สุด" },
+  { value:"ดี",          color:"#3182ce", bg:"#EBF8FF", mouth:"happy1", sub:"ค่อนข้างดี" },
+  { value:"ปานกลาง",     color:"#888780", bg:"#F7F7F5", mouth:"neutral",sub:"กลางๆ" },
+  { value:"พอใช้",       color:"#DD6B20", bg:"#FFFAF0", mouth:"sad1",   sub:"ค่อนข้างน้อย" },
+  { value:"ควรปรับปรุง", color:"#C53030", bg:"#FFF5F5", mouth:"sad2",   sub:"น้อยที่สุด" },
+];
+
+function faceSVG(mouth, color) {
+  const m = {
+    happy2:  `<path d="M13 30 Q24 41 35 30" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/>`,
+    happy1:  `<path d="M15 30 Q24 38 33 30" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/>`,
+    neutral: `<line x1="15" y1="31" x2="33" y2="31" stroke="white" stroke-width="2.5" stroke-linecap="round"/>`,
+    sad1:    `<path d="M15 34 Q24 27 33 34" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/>`,
+    sad2:    `<path d="M13 36 Q24 27 35 36" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/>`,
+  };
+  return `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="24" cy="24" r="22" fill="${color}"/>
+    <circle cx="16" cy="19" r="3" fill="white"/>
+    <circle cx="32" cy="19" r="3" fill="white"/>
+    ${m[mouth]||""}
+  </svg>`;
+}
+
+// ── State ─────────────────────────────────────────────────────────
+const answers = {};
+let current = -1; // -1 = welcome
+
+const TOTAL = QUESTIONS.length;
+const card  = document.getElementById("mainCard");
+const progWrap = document.getElementById("progressWrap");
+const progFill = document.getElementById("progressFill");
+const progStep = document.getElementById("progressStep");
+const progPct  = document.getElementById("progressPct");
+
+// ── Render helpers ────────────────────────────────────────────────
+function setProgress(idx) {
+  if (idx < 0) { progWrap.style.display = "none"; return; }
+  progWrap.style.display = "block";
+  const pct = Math.round(((idx) / TOTAL) * 100);
+  progFill.style.width = pct + "%";
+  progStep.textContent = `ข้อที่ ${idx + 1} จาก ${TOTAL}`;
+  progPct.textContent  = pct + "%";
+}
+
+function renderWelcome() {
+  current = -1;
+  setProgress(-1);
+  card.innerHTML = `
+    <div class="welcome-icon">📋</div>
+    <div class="welcome-title">แบบประเมินความพึงพอใจ<br>ระบบสมดุลส่วนล่างด้วยวิดีโอเกม</div>
+    <div class="welcome-sub" style="margin-top:14px">แบบสำรวจนี้มีทั้งหมด <strong>${TOTAL} ข้อ</strong> ใช้เวลาประมาณ 3-5 นาที<br>กรุณาตอบทุกข้อตามความเป็นจริง</div>
+    <div class="steps-row">
+      <div class="step-chip" style="background:#EBF8FF;color:#2B6CB0">📝 ข้อมูลส่วนตัว<br>3 ข้อ</div>
+      <div class="step-chip" style="background:#F0FFF4;color:#276749">🎮 ด้านอุปกรณ์<br>5 ข้อ</div>
+      <div class="step-chip" style="background:#FFF5F5;color:#9B2C2C">💻 ด้านซอฟต์แวร์<br>5 ข้อ</div>
+      <div class="step-chip" style="background:#FFFAF0;color:#744210">⭐ ด้านประโยชน์<br>5 ข้อ</div>
+    </div>
+    <button class="btn btn-next" style="margin-top:8px;width:100%" onclick="goNext()">เริ่มทำแบบประเมิน →</button>
+  `;
+}
+
+function renderQuestion(idx) {
+  current = idx;
+  setProgress(idx);
+  const q = QUESTIONS[idx];
+  const isLast = idx === TOTAL - 1;
+  const isFirst = idx === 0;
+
+  let sectionHTML = "";
+  if (q.section) {
+    const colors = {
+      "🔵": {bg:"#EBF8FF",color:"#2B6CB0"},
+      "🟢": {bg:"#F0FFF4",color:"#276749"},
+      "🟡": {bg:"#FFFAF0",color:"#744210"},
+    };
+    const key = q.section.slice(0,2);
+    const c = colors[key] || {bg:"#F7FAFC",color:"#4A5568"};
+    sectionHTML = `<div class="section-badge" style="background:${c.bg};color:${c.color}">${q.section}</div>`;
+  }
+
+  let inputHTML = "";
+
+  if (q.type === "radio") {
+    const opts = q.options.map(o => `
+      <label class="radio-option ${answers[q.id]===o.value?'selected':''}"
+        onclick="selectAnswer('${q.id}','${o.value}',this)">
+        <input type="radio" name="${q.id}" value="${o.value}" ${answers[q.id]===o.value?'checked':''}>
+        <div class="radio-circle"><div class="radio-dot"></div></div>
+        <span class="radio-text">${o.label}</span>
+      </label>`).join("");
+    inputHTML = `<div class="radio-group">${opts}</div>`;
+  }
+
+  else if (q.type === "rating") {
+    const btns = LEVELS.map(lv => {
+      const sel = answers[q.id] === lv.value;
+      return `<button type="button" class="emoji-btn ${sel?'selected':''}"
+        style="${sel?'background:'+lv.bg+';border-color:#3182ce;transform:translateX(4px)':''}"
+        onclick="selectRating('${q.id}', '${lv.value}', '${lv.bg}', this)">
+        ${faceSVG(lv.mouth, lv.color)}
+        <div class="emoji-btn-text">
+          <div class="emoji-btn-main">${lv.value}</div>
+          <div class="emoji-btn-sub">${lv.sub}</div>
+        </div>
+      </button>`;
+    }).join("");
+    inputHTML = `<div class="emoji-grid">${btns}</div>`;
+  }
+
+  else if (q.type === "text") {
+    inputHTML = `<textarea id="textAnswer" placeholder="พิมพ์ข้อเสนอแนะที่นี่..." rows="5">${answers[q.id]||""}</textarea>`;
+  }
+
+  const backBtn = idx > 0
+    ? `<button class="btn btn-back" onclick="goPrev()">←</button>`
+    : `<button class="btn btn-back" onclick="renderWelcome()">←</button>`;
+
+  const nextBtn = isLast
+    ? `<button class="btn btn-submit" id="nextBtn" onclick="handleNext()">✅ ส่งแบบประเมิน</button>`
+    : `<button class="btn btn-next" id="nextBtn" onclick="handleNext()">ถัดไป →</button>`;
+
+  card.innerHTML = `
+    ${sectionHTML}
+    <div class="q-number">ข้อที่ ${idx + 1} จาก ${TOTAL}</div>
+    <div class="q-text">${q.text}</div>
+    ${inputHTML}
+    <div class="error-msg" id="errMsg">กรุณาเลือกคำตอบก่อนดำเนินการต่อ</div>
+    <div class="nav-row">${backBtn}${nextBtn}</div>
+  `;
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function renderThankYou() {
+  setProgress(-1);
+  progWrap.style.display = "none";
+  card.innerHTML = `
+    <div class="thank-icon">😊</div>
+    <div class="thank-title">ขอบคุณมากครับ/ค่ะ!</div>
+    <div class="thank-sub">ได้รับคำตอบของท่านเรียบร้อยแล้ว<br>ข้อมูลของท่านมีประโยชน์อย่างมาก<br>สำหรับงานวิจัยนี้</div>
+    <button class="btn-again" onclick="restartSurvey()">ทำแบบประเมินใหม่</button>
+  `;
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+// ── Answer handlers ───────────────────────────────────────────────
+function selectAnswer(qid, value, el) {
+  el.closest(".radio-group").querySelectorAll(".radio-option")
+    .forEach(o => o.classList.remove("selected"));
+  el.classList.add("selected");
+  answers[qid] = value;
+  hideError();
+  // Auto-advance after short delay for radio
+  setTimeout(() => handleNext(), 300);
+}
+
+function selectRating(qid, value, bg, btn) {
+  btn.closest(".emoji-grid").querySelectorAll(".emoji-btn").forEach(b => {
+    b.classList.remove("selected");
+    b.style.background = "#f8fafc";
+    b.style.borderColor = "#e2e8f0";
+    b.style.transform = "";
+  });
+  btn.classList.add("selected");
+  btn.style.background = bg;
+  btn.style.borderColor = "#3182ce";
+  btn.style.transform = "translateX(4px)";
+  answers[qid] = value;
+  hideError();
+  // Auto-advance after short delay
+  setTimeout(() => handleNext(), 350);
+}
+
+function hideError() {
+  const e = document.getElementById("errMsg");
+  if (e) e.classList.remove("show");
+}
+
+// ── Navigation ────────────────────────────────────────────────────
+function goNext() { renderQuestion(0); }
+function goPrev() { if (current > 0) renderQuestion(current - 1); }
+
+function handleNext() {
+  const q = QUESTIONS[current];
+
+  // Save text answer
+  if (q.type === "text") {
+    const ta = document.getElementById("textAnswer");
+    if (ta) answers[q.id] = ta.value.trim();
+  }
+
+  // Validate (required questions)
+  if (q.required !== false && !answers[q.id]) {
+    const e = document.getElementById("errMsg");
+    if (e) e.classList.add("show");
+    return;
+  }
+
+  // Last question → submit
+  if (current === TOTAL - 1) {
+    submitForm();
+    return;
+  }
+
+  renderQuestion(current + 1);
+}
+
+// ── Submit ────────────────────────────────────────────────────────
+function submitForm() {
+  const btn = document.getElementById("nextBtn");
+  if (btn) { btn.disabled = true; btn.textContent = "กำลังส่ง..."; }
+
+  // Build a hidden HTML form and submit it directly
+  // This is more reliable than fetch for Google Forms
+  const form = document.createElement("form");
+  form.method = "POST";
+  form.action = FORM_ACTION;
+  form.target = "hidden_iframe";
+  form.style.display = "none";
+
+  QUESTIONS.forEach(q => {
+    if (answers[q.id]) {
+      const input = document.createElement("input");
+      input.type = "hidden";
+      input.name = q.entry;
+      input.value = answers[q.id];
+      form.appendChild(input);
+    }
+  });
+
+  // Add required hidden fields Google Forms needs
+  const fvv = document.createElement("input");
+  fvv.type = "hidden"; fvv.name = "fvv"; fvv.value = "1";
+  form.appendChild(fvv);
+
+  const draftResponse = document.createElement("input");
+  draftResponse.type = "hidden"; draftResponse.name = "draftResponse"; draftResponse.value = "[]";
+  form.appendChild(draftResponse);
+
+  const pageHistory = document.createElement("input");
+  pageHistory.type = "hidden"; pageHistory.name = "pageHistory"; pageHistory.value = "0,1";
+  form.appendChild(pageHistory);
+
+  document.body.appendChild(form);
+
+  // Create hidden iframe to catch the response (prevents page redirect)
+  let iframe = document.getElementById("hidden_iframe");
+  if (!iframe) {
+    iframe = document.createElement("iframe");
+    iframe.name = "hidden_iframe";
+    iframe.id = "hidden_iframe";
+    iframe.style.display = "none";
+    document.body.appendChild(iframe);
+  }
+
+  iframe.onload = function() {
+    document.body.removeChild(form);
+    renderThankYou();
+  };
+
+  form.submit();
+
+  // Fallback: if iframe doesn't fire onload within 4 seconds, show thank you anyway
+  setTimeout(() => renderThankYou(), 4000);
+}
+
+function restartSurvey() {
+  Object.keys(answers).forEach(k => delete answers[k]);
+  renderWelcome();
+}
+
+// ── Start ─────────────────────────────────────────────────────────
+renderWelcome();
+</script>
+</body>
+</html>
